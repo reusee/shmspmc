@@ -7,11 +7,11 @@ import (
 
 func TestFile(t *testing.T) {
 	name := "test-shmspmc"
-	writer, err := New[[41]byte](name, true)
+	writer, err := New[[64]byte](name, true)
 	if err != nil {
 		t.Fatal(err)
 	}
-	reader, err := New[[41]byte](name, false)
+	reader, err := New[[64]byte](name, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -21,7 +21,7 @@ func TestFile(t *testing.T) {
 	})
 
 	for i := 1; i < 1000_0000; i++ {
-		var data [41]byte
+		var data [64]byte
 		binary.PutUvarint(data[:], uint64(i))
 		if err := writer.Write(data); err != nil {
 			t.Fatal(err)
@@ -40,11 +40,11 @@ func TestFile(t *testing.T) {
 
 func BenchmarkReadWrite(b *testing.B) {
 	name := "bench-shmspmc"
-	writer, err := New[[41]byte](name, true)
+	writer, err := New[[64]byte](name, true)
 	if err != nil {
 		b.Fatal(err)
 	}
-	reader, err := New[[41]byte](name, false)
+	reader, err := New[[64]byte](name, false)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -55,7 +55,7 @@ func BenchmarkReadWrite(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 1; i < b.N; i++ {
-		var data [41]byte
+		var data [64]byte
 		binary.PutUvarint(data[:], uint64(i))
 		if err := writer.Write(data); err != nil {
 			b.Fatal(err)

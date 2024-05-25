@@ -25,10 +25,19 @@ type File[T comparable] struct {
 
 const (
 	extendSize      = 2 * (1 << 20)
+	pageSize        = 4096
 	dataBeginOffset = 4 * (1 << 10) // must be 4k-aligned to allow madvise
 )
 
 func New[T comparable](name string, isWriter bool) (*File[T], error) {
+
+	// validate type size
+	var zero T
+	typeSize := int64(unsafe.Sizeof(zero))
+	if pageSize%typeSize != 0 {
+		panic("invalid type size")
+	}
+
 	path := filepath.Join("/dev/shm", name)
 
 	// open file
@@ -57,11 +66,10 @@ func New[T comparable](name string, isWriter bool) (*File[T], error) {
 		return nil, err
 	}
 
-	var zero T
 	return &File[T]{
+		typeSize:  typeSize,
 		osFile:    osFile,
 		isWriter:  isWriter,
-		typeSize:  int64(unsafe.Sizeof(zero)),
 		mem:       mem,
 		next:      dataBeginOffset,
 		nextPunch: dataBeginOffset,
